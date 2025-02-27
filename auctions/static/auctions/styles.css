@@ -1,0 +1,46 @@
+body {
+    padding: 10px;
+}
+
+img {
+    max-width: 100%;
+    max-height: 100%;
+    margin: auto;
+    display: block;
+}
+
+.row {
+    border: 1px solid #dfe1e5;
+}
+
+/* Create two unequal columns for listing image and description */
+.column {
+    float: left;
+    padding: 10px;
+}
+
+/* Image column of the listing */
+.column.image {
+    width: 25%;
+}
+
+/* Description column of the listing */
+.column.text {
+    width: 75%;
+}
+
+.row::after {
+    content: "";
+    display: table;
+    clear: both;
+}
+
+span.badge {
+    margin-left: auto;
+}
+
+@media screen and (max-width: 800px) {
+  .column.image, .column.text {
+        width: 100%;
+  }
+}

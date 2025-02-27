@@ -1,0 +1,119 @@
+{% extends "auctions/layout.html" %}
+{% load widget_tweaks %}
+
+{% block body %}
+
+        <div class="row">
+            <div class="col-md-4 col-lg-4 col-xl-4">
+                {% if image_url %}
+                    <img src="{{ image_url }}" class="rounded">
+                {% else %}
+                    <img src="https://icon-library.com/images/no-photo-available-icon/no-photo-available-icon-8.jpg"
+                         class="rounded">
+                {% endif %}
+            </div>
+
+            <div class="col-md-5 col-lg-5 col-xl-5">
+                <div>
+                    <h2>{{ listing.name }}</h2>
+                    <p>{{ listing.description }}</p>
+                    <p>Sold by: {{ listing.user }}</p>
+                    <h5>Current price: ${{ listing.current_price }}</h5>
+                </div>
+
+                <div style="margin-top:10px">
+                    {% if is_active %}
+                        {% if user.is_authenticated %}
+                            {% if not is_author %}
+                                <form class="form-inline" action="{% url 'place_bid' listing_id=listing_id %}" method="post">
+                                    {% csrf_token %}
+                                    <div>
+                                        {% if bid_form.is_bound %}
+                                            {% if bid_form.bid_value.errors %}
+                                                {% render_field bid_form.bid_value class="form-control is-invalid" %}
+                                                {% for error in bid_form.bid_value.errors %}
+                                                    <div class="invalid-feedback">
+                                                        {{ error }}
+                                                    </div>
+                                                {% endfor %}
+                                            {% else %}
+                                                {% render_field bid_form.bid_value class="form-control is-valid" %}
+                                            {% endif %}
+                                        {% else %}
+                                            {% render_field bid_form.bid_value class="form-control" %}
+                                        {% endif %}
+                                        <input type="submit" class="btn btn-primary" value="Place bid">
+                                    </div>
+                                </form>
+                            {% else %}
+                                <form action="{% url 'listing_close' listing_id=listing_id %}" method="post">
+                                    {% csrf_token %}
+                                    <input type="submit" class="btn btn-danger" value="Close listing">
+                                </form>
+                            {% endif %}
+                        {% endif %}
+                    {% else %}
+                        {% if is_winner %}
+                            <div class="alert alert-success" role="alert">
+                                Congratulations, you won this auction!
+                            </div>
+                        {% else %}
+                            <div class="alert alert-warning" role="alert">
+                                The listing is closed.
+                            </div>
+                        {% endif %}
+                    {% endif %}
+                </div>
+
+                <div style="margin-top:10px">
+                    Categories:
+                    {% for category in listing.categories.all %}
+                    <a href="{% url 'category' category.id %}">
+                        <button type="button" class="btn-sm btn-outline-secondary">
+                            {{ category }}
+                        </button>
+                    </a>
+                    {% endfor %}
+                </div>
+
+                <div style="margin-top:10px">
+                    {% if is_active and user.is_authenticated and not is_author %}
+                        {% if not in_watchlist %}
+                            <form action="{% url 'watchlist_add' listing_id=listing_id %}" method="post">
+                                {% csrf_token %}
+                                <input type="submit" class="btn btn-outline-success" value="Add to watchlist">
+                            </form>
+                        {% else %}
+                            <form action="{% url 'watchlist_delete' listing_id=listing_id %}" method="post">
+                                {% csrf_token %}
+                                <input type="submit" class="btn btn-outline-danger" value="Delete from watchlist">
+                            </form>
+                        {% endif %}
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="col-md-3 col-lg-3 col-xl-3">
+                <h5><small class="float-right">{{ comments_count }} comments</small>Comments:</h5>
+                {% if comments_count == 0 %}
+                    {{ comments }}
+                {% else %}
+                    {% for comment in comments %}
+                        <div>
+                            <h6><small class="float-right">{{ comment.datetime|timesince }} ago</small>{{ comment.user }}</h6>
+                        </div>
+                        <p>{{ comment.text }}</p>
+                    {% endfor %}
+                {% endif %}
+
+                {% if is_active and user.is_authenticated %}
+                    <form action="{% url 'add_comment' listing_id=listing_id %}" method="post">
+                        {% csrf_token %}
+                        {{ comment_form }}
+                        <input type="submit" value="Add comment">
+                    </form>
+                {% endif %}
+            </div>
+        </div>
+
+{% endblock %}

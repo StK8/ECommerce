@@ -1,0 +1,23 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+    <h2>Active Listings</h2>
+    {% for listing in active_listings %}
+    <div class="row">
+        <div class="column image">
+            {% if listing.url %}
+                <img src={{ listing.url }} width="200" height="200" class="mx-auto">
+            {% else %}
+                <img src="https://icon-library.com/images/no-photo-available-icon/no-photo-available-icon-8.jpg"
+                     width="200" height="200">
+            {% endif %}
+        </div>
+
+        <div class="column text">
+            <a href="{% url 'listing' listing.id %}"><h4><p>{{ listing.name }}</p></h4></a>
+            <p>{{ listing.description }}</p>
+            <p><b>Current price:</b> ${{ listing.current_price }}</p>
+        </div>
+    </div>
+    {% endfor %}
+{% endblock %}
